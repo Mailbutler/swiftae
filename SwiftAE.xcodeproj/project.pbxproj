@@ -153,7 +153,6 @@
 		4FFF5D421D899F29008ED4F5 /* AEApplicationGlue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2645AB1BA4F27700256402 /* AEApplicationGlue.swift */; };
 		4FFF5D4B1D89B4EF008ED4F5 /* SwiftGlueTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF5D491D89A26C008ED4F5 /* SwiftGlueTemplate.swift */; };
 		4FFF5D4F1D89B552008ED4F5 /* SwiftGlueTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF5D491D89A26C008ED4F5 /* SwiftGlueTemplate.swift */; };
-		4FFF5D531D89B616008ED4F5 /* aeglue in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4F0E39651BAA98A900FF2A96 /* aeglue */; };
 		4FFF5D541D89B6C4008ED4F5 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4351B7CF1C8000D74EE /* AppKit.framework */; };
 		4FFF5D551D89B6C4008ED4F5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4371B7CF1E0000D74EE /* Carbon.framework */; };
 		4FFF5D561D89B6C4008ED4F5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4331B7CF1C4000D74EE /* Foundation.framework */; };
@@ -173,13 +172,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4FFF5D231D899F0D008ED4F5;
 			remoteInfo = SwiftAutomation;
-		};
-		4FFF5D4C1D89B4FC008ED4F5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F63C41C1B7CF06E000D74EE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F0E39641BAA98A900FF2A96;
-			remoteInfo = aeglue;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -231,16 +223,6 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4FFF5D521D89B5A2008ED4F5 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = bin;
-			dstSubfolderSpec = 7;
-			files = (
-				4FFF5D531D89B616008ED4F5 /* aeglue in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -738,13 +720,11 @@
 				4FFF5D1F1D899F0D008ED4F5 /* Sources */,
 				4FFF5D201D899F0D008ED4F5 /* Frameworks */,
 				4FFF5D211D899F0D008ED4F5 /* Headers */,
-				4FFF5D521D89B5A2008ED4F5 /* CopyFiles */,
 				4F63093C1DFC19940089ADDB /* Copy Files */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4FFF5D4D1D89B4FC008ED4F5 /* PBXTargetDependency */,
 			);
 			name = SwiftAutomation;
 			productName = SwiftAutomation;
@@ -978,11 +958,6 @@
 			isa = PBXTargetDependency;
 			target = 4FFF5D231D899F0D008ED4F5 /* SwiftAutomation */;
 			targetProxy = 4F4C1A241D943D52004F9083 /* PBXContainerItemProxy */;
-		};
-		4FFF5D4D1D89B4FC008ED4F5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F0E39641BAA98A900FF2A96 /* aeglue */;
-			targetProxy = 4FFF5D4C1D89B4FC008ED4F5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
