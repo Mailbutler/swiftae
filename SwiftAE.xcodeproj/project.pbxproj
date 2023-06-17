@@ -153,7 +153,7 @@
 		4FFF5D421D899F29008ED4F5 /* AEApplicationGlue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2645AB1BA4F27700256402 /* AEApplicationGlue.swift */; };
 		4FFF5D4B1D89B4EF008ED4F5 /* SwiftGlueTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF5D491D89A26C008ED4F5 /* SwiftGlueTemplate.swift */; };
 		4FFF5D4F1D89B552008ED4F5 /* SwiftGlueTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF5D491D89A26C008ED4F5 /* SwiftGlueTemplate.swift */; };
-		4FFF5D531D89B616008ED4F5 /* aeglue in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4F0E39651BAA98A900FF2A96 /* aeglue */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FFF5D531D89B616008ED4F5 /* aeglue in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4F0E39651BAA98A900FF2A96 /* aeglue */; };
 		4FFF5D541D89B6C4008ED4F5 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4351B7CF1C8000D74EE /* AppKit.framework */; };
 		4FFF5D551D89B6C4008ED4F5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4371B7CF1E0000D74EE /* Carbon.framework */; };
 		4FFF5D561D89B6C4008ED4F5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F63C4331B7CF1C4000D74EE /* Foundation.framework */; };
