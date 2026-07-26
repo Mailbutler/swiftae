@@ -1,9 +1,10 @@
-// swift-tools-version:4.0
+// swift-tools-version:6.4
 
 import PackageDescription
 
 let package = Package(
     name: "SwiftAE",
+    platforms: [.macOS(.v13)],
     products: [
         .library(
             name: "SwiftAutomation",
@@ -16,12 +17,18 @@ let package = Package(
         .target(
             name: "SwiftAutomation",
             path: "SwiftAutomation",
-            exclude: ["main.swift"]
+            exclude: ["main.swift"],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .target(
             name: "MacOSGlues",
             dependencies: ["SwiftAutomation"],
-            path: "MacOSGlues"
+            path: "MacOSGlues",
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
     ]
 )
