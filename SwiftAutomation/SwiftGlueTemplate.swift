@@ -48,7 +48,10 @@ let SwiftGlueTemplate = [
 "/******************************************************************************/",
 "// Symbol subclass defines static type/enum/property constants based on «APPLICATION_NAME» terminology",
 "",
-"public class «PREFIX»Symbol: «SWIFTAE»Symbol {",
+// Sendable is restated because Symbol's conformance is `@unchecked`, which Swift does not propagate
+// to subclasses. It holds here for the same reason it holds there: a glue's Symbol subclass adds
+// only static constants and a `typeAliasName` override, never a stored property.
+"public class «PREFIX»Symbol: «SWIFTAE»Symbol, @unchecked Sendable {",
 "",
 "    override public var typeAliasName: String {return \"«PREFIX»\"}",
 "",

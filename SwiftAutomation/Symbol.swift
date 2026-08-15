@@ -13,9 +13,13 @@ import Foundation
 
 
 
-open class Symbol: Hashable, Equatable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable, SelfPacking {
-    
-    private var _descriptor: NSAppleEventDescriptor?
+// `@unchecked` only because a non-final class can never take a *checked* `Sendable` conformance, and
+// this one is subclassed by every static glue (`MAISymbol`, `TEDSymbol`, …) so it cannot be final.
+// Nothing else is being asserted: the three stored properties are `let`s of `String?` and `OSType`,
+// all `Sendable`, and glue subclasses add no stored properties of their own — they only declare
+// static constants and override `typeAliasName`.
+open class Symbol: @unchecked Sendable, Hashable, Equatable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable, SelfPacking {
+
     public let name: String?, code: OSType, type: OSType
     
     open var typeAliasName: String {return "Symbol"} // provides prefix used in description var; glue subclasses override this with their own strings (e.g. "FIN" for Finder)
@@ -24,7 +28,14 @@ open class Symbol: Hashable, Equatable, CustomStringConvertible, CustomDebugStri
         self.name = name
         self.code = code
         self.type = type
-        self._descriptor = descriptor // The SwiftAutomation_packSelf() method below will cache the resulting descriptor the first time it is called, avoiding the need to fully-repack the same Symbol on subsequent calls.
+        // `descriptor` is accepted and discarded. It used to be cached in a stored property, which
+        // made every Symbol carry shared mutable state: static glues expose their symbols as
+        // process-wide `static let`s, and the cache was filled without synchronisation on first
+        // `descriptor` access, so two threads packing the same symbol raced on the field. The
+        // descriptor is fully derived from `name`, `code` and `type`, so rebuilding it on demand
+        // loses no information — only the reuse of one small object, which is nothing beside the
+        // Apple event round trip it is built for. The parameter stays so call sites are unchanged.
+        _ = descriptor
     }
     
     // special constructor for string-based record keys (avoids the need to wrap dictionary keys in a `StringOrSymbol` enum when unpacking)
@@ -74,15 +85,8 @@ open class Symbol: Hashable, Equatable, CustomStringConvertible, CustomDebugStri
     
     // packing
     
-    public var descriptor: NSAppleEventDescriptor { // used by SwiftAutomation_packSelf and previous()/next() selectors  
-        if self._descriptor == nil {
-            if self.nameOnly {
-                self._descriptor = NSAppleEventDescriptor(string: self.name!)
-            } else {
-                self._descriptor = NSAppleEventDescriptor(type: self.type, code: self.code)
-            }
-        }
-        return self._descriptor!
+    public var descriptor: NSAppleEventDescriptor { // used by SwiftAutomation_packSelf and previous()/next() selectors
+        return self.nameOnly ? NSAppleEventDescriptor(string: self.name!) : NSAppleEventDescriptor(type: self.type, code: self.code)
     }
     
     // returns true if Symbol contains name but not code (i.e. it represents a string-based record property key)
