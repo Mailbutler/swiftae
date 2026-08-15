@@ -141,13 +141,17 @@ private let _glueClasses = GlueClasses(insertionSpecifierType: AEInsertion.self,
                                        symbolType: AESymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: AppData { AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on built-in terminology
 
-public class AESymbol: Symbol {
+public class AESymbol: Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "AE"}
 
@@ -588,9 +592,9 @@ public class AEApplication: AERoot, Application {}
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let AEApp = _untargetedAppData.app as! AERoot
-public let AECon = _untargetedAppData.con as! AERoot
-public let AEIts = _untargetedAppData.its as! AERoot
+public var AEApp: AERoot { _untargetedAppData.app as! AERoot }
+public var AECon: AERoot { _untargetedAppData.con as! AERoot }
+public var AEIts: AERoot { _untargetedAppData.its as! AERoot }
 
 
 /******************************************************************************/

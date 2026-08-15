@@ -210,13 +210,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: S
                                        symbolType: SPRSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on System Preferences.app terminology
 
-public class SPRSymbol: SwiftAutomation.Symbol {
+public class SPRSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "SPR"}
 
@@ -914,9 +918,9 @@ public class SystemPreferences: SPRRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let SPRApp = _untargetedAppData.app as! SPRRoot
-public let SPRCon = _untargetedAppData.con as! SPRRoot
-public let SPRIts = _untargetedAppData.its as! SPRRoot
+public var SPRApp: SPRRoot { _untargetedAppData.app as! SPRRoot }
+public var SPRCon: SPRRoot { _untargetedAppData.con as! SPRRoot }
+public var SPRIts: SPRRoot { _untargetedAppData.its as! SPRRoot }
 
 
 /******************************************************************************/

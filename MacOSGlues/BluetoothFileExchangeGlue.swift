@@ -141,13 +141,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: B
                                        symbolType: BFESymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Bluetooth File Exchange.app terminology
 
-public class BFESymbol: SwiftAutomation.Symbol {
+public class BFESymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "BFE"}
 
@@ -637,9 +641,9 @@ public class BluetoothFileExchange: BFERoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let BFEApp = _untargetedAppData.app as! BFERoot
-public let BFECon = _untargetedAppData.con as! BFERoot
-public let BFEIts = _untargetedAppData.its as! BFERoot
+public var BFEApp: BFERoot { _untargetedAppData.app as! BFERoot }
+public var BFECon: BFERoot { _untargetedAppData.con as! BFERoot }
+public var BFEIts: BFERoot { _untargetedAppData.its as! BFERoot }
 
 
 /******************************************************************************/

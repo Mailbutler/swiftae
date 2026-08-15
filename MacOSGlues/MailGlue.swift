@@ -606,13 +606,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: M
                                        symbolType: MAISymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Mail.app terminology
 
-public class MAISymbol: SwiftAutomation.Symbol {
+public class MAISymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "MAI"}
 
@@ -2218,9 +2222,9 @@ public class Mail: MAIRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let MAIApp = _untargetedAppData.app as! MAIRoot
-public let MAICon = _untargetedAppData.con as! MAIRoot
-public let MAIIts = _untargetedAppData.its as! MAIRoot
+public var MAIApp: MAIRoot { _untargetedAppData.app as! MAIRoot }
+public var MAICon: MAIRoot { _untargetedAppData.con as! MAIRoot }
+public var MAIIts: MAIRoot { _untargetedAppData.its as! MAIRoot }
 
 
 /******************************************************************************/

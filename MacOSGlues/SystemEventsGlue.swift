@@ -882,13 +882,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: S
                                        symbolType: SEVSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on System Events.app terminology
 
-public class SEVSymbol: SwiftAutomation.Symbol {
+public class SEVSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "SEV"}
 
@@ -3177,9 +3181,9 @@ public class SystemEvents: SEVRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let SEVApp = _untargetedAppData.app as! SEVRoot
-public let SEVCon = _untargetedAppData.con as! SEVRoot
-public let SEVIts = _untargetedAppData.its as! SEVRoot
+public var SEVApp: SEVRoot { _untargetedAppData.app as! SEVRoot }
+public var SEVCon: SEVRoot { _untargetedAppData.con as! SEVRoot }
+public var SEVIts: SEVRoot { _untargetedAppData.its as! SEVRoot }
 
 
 /******************************************************************************/

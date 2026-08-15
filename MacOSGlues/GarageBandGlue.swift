@@ -258,13 +258,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: G
                                        symbolType: GBASymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on GarageBand.app terminology
 
-public class GBASymbol: SwiftAutomation.Symbol {
+public class GBASymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "GBA"}
 
@@ -1198,9 +1202,9 @@ public class GarageBand: GBARoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let GBAApp = _untargetedAppData.app as! GBARoot
-public let GBACon = _untargetedAppData.con as! GBARoot
-public let GBAIts = _untargetedAppData.its as! GBARoot
+public var GBAApp: GBARoot { _untargetedAppData.app as! GBARoot }
+public var GBACon: GBARoot { _untargetedAppData.con as! GBARoot }
+public var GBAIts: GBARoot { _untargetedAppData.its as! GBARoot }
 
 
 /******************************************************************************/

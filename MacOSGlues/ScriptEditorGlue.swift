@@ -249,13 +249,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: S
                                        symbolType: SEDSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Script Editor.app terminology
 
-public class SEDSymbol: SwiftAutomation.Symbol {
+public class SEDSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "SED"}
 
@@ -1087,9 +1091,9 @@ public class ScriptEditor: SEDRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let SEDApp = _untargetedAppData.app as! SEDRoot
-public let SEDCon = _untargetedAppData.con as! SEDRoot
-public let SEDIts = _untargetedAppData.its as! SEDRoot
+public var SEDApp: SEDRoot { _untargetedAppData.app as! SEDRoot }
+public var SEDCon: SEDRoot { _untargetedAppData.con as! SEDRoot }
+public var SEDIts: SEDRoot { _untargetedAppData.its as! SEDRoot }
 
 
 /******************************************************************************/

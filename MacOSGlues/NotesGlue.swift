@@ -225,13 +225,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: N
                                        symbolType: NOTSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Notes.app terminology
 
-public class NOTSymbol: SwiftAutomation.Symbol {
+public class NOTSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "NOT"}
 
@@ -1020,9 +1024,9 @@ public class Notes: NOTRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let NOTApp = _untargetedAppData.app as! NOTRoot
-public let NOTCon = _untargetedAppData.con as! NOTRoot
-public let NOTIts = _untargetedAppData.its as! NOTRoot
+public var NOTApp: NOTRoot { _untargetedAppData.app as! NOTRoot }
+public var NOTCon: NOTRoot { _untargetedAppData.con as! NOTRoot }
+public var NOTIts: NOTRoot { _untargetedAppData.its as! NOTRoot }
 
 
 /******************************************************************************/

@@ -28,12 +28,13 @@ import AppKit
 
 // TO DO: either make this class fully open so it can be overridden (e.g. to generate representations for other languages), or make its format() method part of a Formatter protocol
 
-public class SpecifierFormatter {
+/// Immutable: every stored property is a `let` of a value type, so the conformance is checked.
+public final class SpecifierFormatter: Sendable {
     
     let applicationClassName: String, classNamePrefix: String // used to render specifier roots (Application, App, Con, Its)
     let typeNames: [OSType:String], propertyNames: [OSType:String], elementsNames: [OSType: (singular: String, plural: String)]
     
-    public required init(applicationClassName: String = "Application", classNamePrefix: String = "", typeNames: [OSType:String] = [:],
+    public init(applicationClassName: String = "Application", classNamePrefix: String = "", typeNames: [OSType:String] = [:],
                          propertyNames: [OSType:String] = [:], elementsNames: [OSType: (singular: String, plural: String)] = [:]) {
         self.applicationClassName = applicationClassName
         self.classNamePrefix = classNamePrefix

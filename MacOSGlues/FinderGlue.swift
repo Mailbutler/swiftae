@@ -520,13 +520,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: F
                                        symbolType: FINSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Finder.app terminology
 
-public class FINSymbol: SwiftAutomation.Symbol {
+public class FINSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "FIN"}
 
@@ -2005,9 +2009,9 @@ public class Finder: FINRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let FINApp = _untargetedAppData.app as! FINRoot
-public let FINCon = _untargetedAppData.con as! FINRoot
-public let FINIts = _untargetedAppData.its as! FINRoot
+public var FINApp: FINRoot { _untargetedAppData.app as! FINRoot }
+public var FINCon: FINRoot { _untargetedAppData.con as! FINRoot }
+public var FINIts: FINRoot { _untargetedAppData.its as! FINRoot }
 
 
 /******************************************************************************/

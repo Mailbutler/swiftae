@@ -237,13 +237,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: S
                                        symbolType: SINSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on System Information.app terminology
 
-public class SINSymbol: SwiftAutomation.Symbol {
+public class SINSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "SIN"}
 
@@ -1036,9 +1040,9 @@ public class SystemInformation: SINRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let SINApp = _untargetedAppData.app as! SINRoot
-public let SINCon = _untargetedAppData.con as! SINRoot
-public let SINIts = _untargetedAppData.its as! SINRoot
+public var SINApp: SINRoot { _untargetedAppData.app as! SINRoot }
+public var SINCon: SINRoot { _untargetedAppData.con as! SINRoot }
+public var SINIts: SINRoot { _untargetedAppData.its as! SINRoot }
 
 
 /******************************************************************************/

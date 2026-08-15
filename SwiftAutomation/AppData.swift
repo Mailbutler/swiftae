@@ -30,7 +30,7 @@ public typealias KeywordParameter = (name: String?, code: OSType, value: Any)
 
 
 
-public struct GlueClasses {
+public struct GlueClasses: Sendable {
     // Glue-defined specifier and symbol classes; AppData.unpack() instantiates these when unpacking the corresponding AEDescs
     let insertionSpecifierType: InsertionSpecifier.Type // PREFIXInsertion
     let objectSpecifierType: ObjectSpecifier.Type       // PREFIXItem

@@ -281,13 +281,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: X
                                        symbolType: XCOSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Xcode.app terminology
 
-public class XCOSymbol: SwiftAutomation.Symbol {
+public class XCOSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "XCO"}
 
@@ -1196,9 +1200,9 @@ public class Xcode: XCORoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let XCOApp = _untargetedAppData.app as! XCORoot
-public let XCOCon = _untargetedAppData.con as! XCORoot
-public let XCOIts = _untargetedAppData.its as! XCORoot
+public var XCOApp: XCORoot { _untargetedAppData.app as! XCORoot }
+public var XCOCon: XCORoot { _untargetedAppData.con as! XCORoot }
+public var XCOIts: XCORoot { _untargetedAppData.its as! XCORoot }
 
 
 /******************************************************************************/

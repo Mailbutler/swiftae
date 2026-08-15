@@ -243,13 +243,17 @@ private let _glueClasses = SwiftAutomation.GlueClasses(insertionSpecifierType: D
                                        symbolType: DEVSymbol.self,
                                        formatter: _specifierFormatter)
 
-private let _untargetedAppData = SwiftAutomation.AppData(glueClasses: _glueClasses)
+// Computed, not stored: `AppData` carries per-connection mutable state (a target descriptor
+// cache and a transaction id), so one shared instance would be unsynchronised shared state.
+// Untargeted use never touches either, but the type cannot say so, and asserting it would be
+// a lie rather than a fix. Building one per access costs an allocation against an Apple event.
+private var _untargetedAppData: SwiftAutomation.AppData { SwiftAutomation.AppData(glueClasses: _glueClasses) }
 
 
 /******************************************************************************/
 // Symbol subclass defines static type/enum/property constants based on Database Events.app terminology
 
-public class DEVSymbol: SwiftAutomation.Symbol {
+public class DEVSymbol: SwiftAutomation.Symbol, @unchecked Sendable {
 
     override public var typeAliasName: String {return "DEV"}
 
@@ -1033,9 +1037,9 @@ public class DatabaseEvents: DEVRoot, SwiftAutomation.Application {
 
 // App/Con/Its root objects used to construct untargeted specifiers; these can be used to construct specifiers for use in commands, though cannot send commands themselves
 
-public let DEVApp = _untargetedAppData.app as! DEVRoot
-public let DEVCon = _untargetedAppData.con as! DEVRoot
-public let DEVIts = _untargetedAppData.its as! DEVRoot
+public var DEVApp: DEVRoot { _untargetedAppData.app as! DEVRoot }
+public var DEVCon: DEVRoot { _untargetedAppData.con as! DEVRoot }
+public var DEVIts: DEVRoot { _untargetedAppData.its as! DEVRoot }
 
 
 /******************************************************************************/
