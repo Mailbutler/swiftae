@@ -28,3 +28,7 @@ xcuserdata/
 *.xcscmblueprint
 Carthage
 .DS_Store
+
+## SwiftPM
+.build/
+Derived/
