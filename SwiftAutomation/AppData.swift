@@ -78,6 +78,13 @@ open class AppData {
     private var _targetDescriptor: NSAppleEventDescriptor? = nil // targetDescriptor() creates an AEAddressDesc for the target process when dispatching first Apple event, caching it here for subsequent reuse
     
     private var _transactionID: AETransactionID = _kAnyTransactionID
+
+    /// Sends every command this AppData's specifiers dispatch, in place of the Apple Event Manager, when
+    /// set: it returns the reply event as the target would - the result in `----`, an application error in
+    /// `errn` - or throws an Apple Event Manager error. Specifiers unpacked from its replies share this
+    /// AppData, so it answers their commands too. It is called on whichever thread sends the command.
+    /// Launching an application to target it is not a command and still goes to the system.
+    public var eventSender: (@Sendable (_ event: NSAppleEventDescriptor, _ sendMode: SendOptions, _ timeout: TimeInterval) throws -> NSAppleEventDescriptor)?
     
     
     public required init(target: TargetApplication, launchOptions: LaunchOptions, relaunchMode: RelaunchMode, glueClasses: GlueClasses) { // should be private, but targetedCopy requires it to be required, which in turn requires it to be public; it should not be called directly, however (if an AppData instance is required for standalone use, instantiate the Application class from the default AEApplicationGlue or an application-specific glue, then get its appData property instead)
@@ -621,6 +628,7 @@ open class AppData {
     
     private func send(event: NSAppleEventDescriptor, sendMode: SendOptions, timeout: TimeInterval) throws -> NSAppleEventDescriptor { // used by sendAppleEvent()
         do {
+            if let eventSender { return try eventSender(event, sendMode, timeout) }
             return try event.sendEvent(options: sendMode, timeout: timeout) // throws NSError on AEM errors (but not app errors)
         
         // TO DO: this is wrong; -1708 will be in reply event, not in AEM error; FIX
