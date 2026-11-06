@@ -573,7 +573,7 @@ open class AppData {
         if let operatorType = desc.forKeyword(_keyAECompOperator),
             let operand1Desc = desc.forKeyword(_keyAEObject1),
             let operand2Desc = desc.forKeyword(_keyAEObject2),
-            !self._comparisonOperatorCodes.contains(operatorType.enumCodeValue) {
+            self._comparisonOperatorCodes.contains(operatorType.enumCodeValue) {
                 // don't bother with dedicated error reporting here as malformed operand descs that cause the following unpack calls to fail are unlikely in practice, and will still be caught and reported further up the call chain anyway
                 let operand1 = try self.unpackAsAny(operand1Desc)
                 let operand2 = try self.unpackAsAny(operand2Desc)
@@ -591,7 +591,7 @@ open class AppData {
     func unpackAsLogicalDescriptor(_ desc: NSAppleEventDescriptor) throws -> TestClause {
         if let operatorType = desc.forKeyword(_keyAELogicalOperator),
             let operandsDesc = desc.forKeyword(_keyAEObject),
-            !self._logicalOperatorCodes.contains(operatorType.enumCodeValue) {
+            self._logicalOperatorCodes.contains(operatorType.enumCodeValue) {
                 let operands = try self.unpack(operandsDesc) as [TestClause]
                 return LogicalTest(operatorType: operatorType, operands: operands, appData: self, descriptor: desc)
         }
